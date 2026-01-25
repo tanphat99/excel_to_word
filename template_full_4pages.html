@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Hợp Đồng Mua Bán</title>
+</head>
+<body style="font-family: Times New Roman; font-size: 13pt; line-height: 1.4; margin: 0; padding: 20px; color: #000;">
+
+    <!-- Header -->
+    <div style="text-align: center; margin-bottom: 30px;">
+        <div style="font-size: 16pt; font-weight: bold; text-transform: uppercase; margin-bottom: 10px;">Cộng Hòa Xã Hội Chủ Nghĩa Việt Nam</div>
+        <div style="font-size: 14pt; font-weight: bold; margin-bottom: 20px;">Độc Lập - Tự Do - Hạnh Phúc</div>
+        <div style="margin-bottom: 20px;">--- o0o ---</div>
+        <div style="font-size: 14pt; font-weight: bold; margin-bottom: 20px;">HỢP ĐỒNG MUA BÁN</div>
+    </div>
+
+    <!-- Contract Number -->
+    <div style="margin-bottom: 20px;">
+        <div style="font-weight: bold;">Số: {{NgayThangNamHD}}/HĐMB/PT-{{Info_TenCongTy}}</div>
+    </div>
+
+    <!-- Legal Basis -->
+    <div style="margin-bottom: 20px;">
+        <div style="margin-bottom: 10px;">Căn cứ theo luật Thương mại nước Cộng Hòa Xã Hội Chủ Nghĩa Việt Nam được Quốc hội ban hành ngày 27/6/2005, có hiệu lực thi hành từ ngày 01/01/2006;</div>
+        <div style="margin-bottom: 10px;">Căn cứ theo bộ luật Dân sự nước Cộng Hòa Xã Hội Chủ Nghĩa Việt Nam được Quốc hội ban hành ngày 27/6/2005, có hiệu lực thi hành từ ngày 01/01/2006;</div>
+        <div style="margin-bottom: 10px;">Căn cứ nhu cầu và khả năng của hai bên;</div>
+    </div>
+
+    <!-- Date and Parties Introduction -->
+    <div style="margin-bottom: 20px;">
+        <div style="margin-bottom: 20px;">Hôm nay, ngày tháng năm {{NamHienTai}} chúng tôi gồm:</div>
+    </div>
+
+    <!-- Section I: Seller -->
+    <div style="margin-bottom: 20px;">
+        <div style="font-weight: bold; text-transform: uppercase; margin-bottom: 10px;">I. BÊN BÁN (BÊN A): CÔNG TY TNHH SẢN XUẤT VÀ THƯƠNG MẠI DỊCH VỤ PHÚ THƯ</div>
+        <div style="margin-bottom: 5px;">Địa chỉ: Nhà số 1 Thôn Rùa Thượng – Xã Tam Hưng - Thành phố Hà Nội, Việt Nam</div>
+        <div style="margin-bottom: 5px;">Điện thoại: 034.433.2918</div>
+        <div style="margin-bottom: 5px;">Fax:</div>
+        <div style="margin-bottom: 5px;">Mã số thuế: 0110430598</div>
+        <div style="margin-bottom: 5px;">Đại diện: <strong>Ông Nguyễn Văn Báo</strong></div>
+        <div style="margin-bottom: 5px;">Chức vụ: <strong>Giám đốc</strong></div>
+        <div style="margin-bottom: 5px;">Tài khoản: 117002948428 – Tại Ngân hàng Vietinbank - Chi nhánh Thành An</div>
+    </div>
+
+    <!-- Section II: Buyer -->
+    <div style="margin-bottom: 20px;">
+        <div style="font-weight: bold; text-transform: uppercase; margin-bottom: 10px;">II. BÊN MUA (BÊN B): {{Info_TenDonViDayDu}}</div>
+        <div style="margin-bottom: 5px;">Địa chỉ: {{Info_DiaChi}}</div>
+        <div style="margin-bottom: 5px;">Điện thoại: {{Info_DienThoai}}</div>
+        <div style="margin-bottom: 5px;">Fax: {{Info_Fax}}</div>
+        <div style="margin-bottom: 5px;">Mã số thuế: {{Info_MaSoThue}}</div>
+        <div style="margin-bottom: 5px;">Đại diện: {{Info_DaiDien}}</div>
+        <div style="margin-bottom: 5px;">Chức vụ: {{Info_ChucVu}}</div>
+        <div style="margin-bottom: 5px;">Tài khoản: {{Info_TaiKhoan}}</div>
+    </div>
+
+    <!-- Agreement Statement -->
+    <div style="margin-bottom: 20px;">
+        <div style="margin-bottom: 20px;">Sau khi thỏa thuận, bên B đồng ý mua, Bên A đồng ý bán hàng hóa theo các điều kiện sau đây:</div>
+    </div>
+
+    <!-- Article 1: Goods, Quality and Quantity -->
+    <div style="margin-bottom: 20px;">
+        <div style="font-weight: bold; margin-bottom: 10px;">Điều 1: Hàng hóa, chất lượng và số lượng</div>
+        
+        <div style="margin-bottom: 10px;">
+            <div style="font-weight: bold; margin-bottom: 5px;">1.1. Hàng hóa và số lượng:</div>
+            <div style="margin-bottom: 10px;">Bên B đồng ý mua của bên A mặt hàng {{TenHangHoaDichVu}} do bên A bán với số lượng chi tiết ở điều 2.1 của hợp đồng.</div>
+        </div>
+        
+        <div style="margin-bottom: 10px;">
+            <div style="font-weight: bold; margin-bottom: 5px;">1.2. Chất lượng:</div>
+            <div style="margin-bottom: 10px;">Hàng hóa mới 100%.</div>
+        </div>
+    </div>
+
+    <!-- Separator -->
+    <div style="border-top: 1px solid #ccc; margin: 20px 0;"></div>
+
+    <!-- Article 2: Price and Payment Method -->
+    <div style="margin-bottom: 20px;">
+        <div style="font-weight: bold; margin-bottom: 10px;">Điều 2: Giá cả, phương thức thanh toán</div>
+        
+        <div style="margin-bottom: 10px;">
+            <div style="font-weight: bold; margin-bottom: 5px;">2.1. Giá cả:</div>
+            <div style="margin-bottom: 10px;">giá trị của hàng hóa nêu tại Điều 1 của hợp đồng này được tính theo bảng giá như sau:</div>
+            
+            <!-- Price Table -->
+            <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+                <thead>
+                    <tr style="background-color: #f0f0f0;">
+                        <th style="border: 1px solid #000; padding: 8px; text-align: center; font-weight: bold;">STT</th>
+                        <th style="border: 1px solid #000; padding: 8px; text-align: center; font-weight: bold;">LOẠI HÀNG</th>
+                        <th style="border: 1px solid #000; padding: 8px; text-align: center; font-weight: bold;">ĐVT</th>
+                        <th style="border: 1px solid #000; padding: 8px; text-align: center; font-weight: bold;">S.LƯỢNG</th>
+                        <th style="border: 1px solid #000; padding: 8px; text-align: center; font-weight: bold;">ĐƠN GIÁ</th>
+                        <th style="border: 1px solid #000; padding: 8px; text-align: center; font-weight: bold;">THÀNH TIỀN</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="border: 1px solid #000; padding: 8px; text-align: center;">1</td>
+                        <td style="border: 1px solid #000; padding: 8px;">{{TenHangHoaDichVu}}</td>
+                        <td style="border: 1px solid #000; padding: 8px; text-align: center;">Kg</td>
+                        <td style="border: 1px solid #000; padding: 8px; text-align: right;">{{SoLuong}}</td>
+                        <td style="border: 1px solid #000; padding: 8px; text-align: right;">{{DonGia}}</td>
+                        <td style="border: 1px solid #000; padding: 8px; text-align: right;">{{ThanhTien}}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" style="border: 1px solid #000; padding: 8px; font-weight: bold;">Tổng cộng tiền hàng</td>
+                        <td style="border: 1px solid #000; padding: 8px; text-align: right; font-weight: bold;">{{ThanhTien}}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" style="border: 1px solid #000; padding: 8px; font-weight: bold;">Thuế VAT 10%</td>
+                        <td style="border: 1px solid #000; padding: 8px; text-align: right; font-weight: bold;">{{TienThueGTGT}}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" style="border: 1px solid #000; padding: 8px; font-weight: bold;">Tổng cộng</td>
+                        <td style="border: 1px solid #000; padding: 8px; text-align: right; font-weight: bold;">{{TongTienThanhToan}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div style="margin-bottom: 10px;">Bằng chữ: {{TongTienThanhToan_BangChu}}</div>
+        </div>
+        
+        <div style="margin-bottom: 10px;">
+            <div style="font-weight: bold; margin-bottom: 5px;">2.2. Phương thức thanh toán:</div>
+            <div style="margin-bottom: 5px;">Hình thức thanh toán: Thanh toán trước hoặc sau không quá 60 ngày khi bên A giao đủ hàng và chứng từ cho bên B, bằng tiền mặt hoặc chuyển khoản.</div>
+            <div style="margin-bottom: 5px;">Chứng từ thanh toán bao gồm: Hoá đơn GTGT, Biên bản giao nhận hàng hóa.</div>
+        </div>
+    </div>
+
+    <!-- Article 3: Delivery Location and Method -->
+    <div style="margin-bottom: 20px;">
+        <div style="font-weight: bold; margin-bottom: 10px;">Điều 3: Địa điểm và phương thức giao nhận hàng hóa</div>
+        
+        <div style="margin-bottom: 10px;">
+            <div style="font-weight: bold; margin-bottom: 5px;">3.1. Địa điểm giao nhận:</div>
+            <div style="margin-bottom: 10px;">Tại xưởng bán bên A</div>
+        </div>
+        
+        <div style="margin-bottom: 10px;">
+            <div style="font-weight: bold; margin-bottom: 5px;">3.2. Phương thức giao nhận:</div>
+            <div style="margin-bottom: 10px;">Giao hàng qua cân thực tế và lập Biên bản giao nhận hàng hóa giữa hai bên. Khối lượng trên biên bản được xác định làm căn cứ thanh toán. Nếu phát hiện hàng thiếu hoặc không đúng chất lượng, bên B có quyền từ chối nhận hàng và yêu cầu bên A giao lại hàng đúng theo hợp đồng.</div>
+        </div>
+    </div>
+
+    <!-- Article 4: Responsibilities -->
+    <div style="margin-bottom: 20px;">
+        <div style="font-weight: bold; margin-bottom: 10px;">Điều 4: Trách nhiệm các bên</div>
+        
+        <div style="margin-bottom: 10px;">
+            <div style="font-weight: bold; margin-bottom: 5px;">4.1. Trách nhiệm bên A:</div>
+            <div style="margin-bottom: 5px;">- Giao hàng đúng số lượng, chất lượng, thời gian và địa điểm đã thỏa thuận.</div>
+            <div style="margin-bottom: 5px;">- Cung cấp đầy đủ chứng từ pháp lý về hàng hóa.</div>
+            <div style="margin-bottom: 5px;">- Chịu trách nhiệm về chất lượng hàng hóa trong thời gian bảo hành.</div>
+            <div style="margin-bottom: 5px;">- Đảm bảo hàng hóa đúng tiêu chuẩn chất lượng đã cam kết.</div>
+            <div style="margin-bottom: 5px;">- Hỗ trợ bên B trong việc vận chuyển và bốc dỡ hàng hóa.</div>
+        </div>
+        
+        <div style="margin-bottom: 10px;">
+            <div style="font-weight: bold; margin-bottom: 5px;">4.2. Trách nhiệm bên B:</div>
+            <div style="margin-bottom: 5px;">- Thanh toán đúng thời hạn và phương thức đã thỏa thuận.</div>
+            <div style="margin-bottom: 5px;">- Nhận hàng đúng thời gian và địa điểm đã thỏa thuận.</div>
+            <div style="margin-bottom: 5px;">- Kiểm tra hàng hóa trước khi nhận.</div>
+            <div style="margin-bottom: 5px;">- Thông báo kịp thời cho bên A nếu có vấn đề về chất lượng hàng hóa.</div>
+            <div style="margin-bottom: 5px;">- Chịu trách nhiệm về việc bảo quản hàng hóa sau khi nhận.</div>
+        </div>
+    </div>
+
+    <!-- Article 5: Delivery Time -->
+    <div style="margin-bottom: 20px;">
+        <div style="font-weight: bold; margin-bottom: 10px;">Điều 5: Thời gian giao hàng</div>
+        
+        <div style="margin-bottom: 10px;">
+            <div style="font-weight: bold; margin-bottom: 5px;">5.1. Thời gian giao hàng:</div>
+            <div style="margin-bottom: 10px;">Bên A sẽ giao hàng cho bên B trong vòng 15 ngày kể từ ngày ký hợp đồng hoặc theo thỏa thuận cụ thể giữa hai bên.</div>
+        </div>
+        
+        <div style="margin-bottom: 10px;">
+            <div style="font-weight: bold; margin-bottom: 5px;">5.2. Gia hạn giao hàng:</div>
+            <div style="margin-bottom: 10px;">Trong trường hợp bất khả kháng, bên A có thể gia hạn thời gian giao hàng nhưng phải thông báo trước cho bên B ít nhất 3 ngày.</div>
+        </div>
+    </div>
+
+    <!-- Article 6: Warranty -->
+    <div style="margin-bottom: 20px;">
+        <div style="font-weight: bold; margin-bottom: 10px;">Điều 6: Bảo hành</div>
+        
+        <div style="margin-bottom: 10px;">
+            <div style="font-weight: bold; margin-bottom: 5px;">6.1. Thời gian bảo hành:</div>
+            <div style="margin-bottom: 10px;">Bên A cam kết bảo hành hàng hóa trong vòng 12 tháng kể từ ngày giao hàng.</div>
+        </div>
+        
+        <div style="margin-bottom: 10px;">
+            <div style="font-weight: bold; margin-bottom: 5px;">6.2. Điều kiện bảo hành:</div>
+            <div style="margin-bottom: 5px;">- Hàng hóa phải được sử dụng đúng mục đích và hướng dẫn.</div>
+            <div style="margin-bottom: 5px;">- Không được sửa chữa, thay đổi cấu trúc hàng hóa.</div>
+            <div style="margin-bottom: 5px;">- Có hóa đơn và phiếu bảo hành hợp lệ.</div>
+        </div>
+    </div>
+
+    <!-- Article 7: Force Majeure -->
+    <div style="margin-bottom: 20px;">
+        <div style="font-weight: bold; margin-bottom: 10px;">Điều 7: Bất khả kháng</div>
+        
+        <div style="margin-bottom: 10px;">
+            <div style="font-weight: bold; margin-bottom: 5px;">7.1. Định nghĩa:</div>
+            <div style="margin-bottom: 10px;">Bất khả kháng là các sự kiện nằm ngoài khả năng kiểm soát của các bên như thiên tai, hỏa hoạn, chiến tranh, đình công, các quy định của cơ quan nhà nước.</div>
+        </div>
+        
+        <div style="margin-bottom: 10px;">
+            <div style="font-weight: bold; margin-bottom: 5px;">7.2. Xử lý:</div>
+            <div style="margin-bottom: 10px;">Khi xảy ra bất khả kháng, các bên sẽ thương lượng để tìm giải pháp phù hợp và không bên nào chịu trách nhiệm bồi thường.</div>
+        </div>
+    </div>
+
+    <!-- Article 8: Dispute Resolution -->
+    <div style="margin-bottom: 20px;">
+        <div style="font-weight: bold; margin-bottom: 10px;">Điều 8: Giải quyết tranh chấp</div>
+        
+        <div style="margin-bottom: 10px;">
+            <div style="font-weight: bold; margin-bottom: 5px;">8.1. Thương lượng:</div>
+            <div style="margin-bottom: 10px;">Mọi tranh chấp phát sinh từ hợp đồng này sẽ được giải quyết thông qua thương lượng hòa bình giữa các bên.</div>
+        </div>
+        
+        <div style="margin-bottom: 10px;">
+            <div style="font-weight: bold; margin-bottom: 5px;">8.2. Trọng tài:</div>
+            <div style="margin-bottom: 10px;">Trong trường hợp không thương lượng được, tranh chấp sẽ được đưa ra Tòa án có thẩm quyền tại Hà Nội để giải quyết.</div>
+        </div>
+    </div>
+
+    <!-- Article 9: Contract Validity -->
+    <div style="margin-bottom: 20px;">
+        <div style="font-weight: bold; margin-bottom: 10px;">Điều 9: Hiệu lực hợp đồng</div>
+        <div style="margin-bottom: 10px;">Hợp đồng này có hiệu lực từ ngày ký và được lập thành 02 (hai) bản có giá trị pháp lý như nhau, mỗi bên giữ 01 (một) bản.</div>
+    </div>
+
+    <!-- Article 10: Amendments -->
+    <div style="margin-bottom: 20px;">
+        <div style="font-weight: bold; margin-bottom: 10px;">Điều 10: Sửa đổi, bổ sung</div>
+        <div style="margin-bottom: 10px;">Mọi sửa đổi, bổ sung hợp đồng này phải được thực hiện bằng văn bản và có chữ ký của đại diện có thẩm quyền của cả hai bên.</div>
+    </div>
+
+    <!-- Signatures -->
+    <div style="margin-top: 40px;">
+        <div style="display: inline-block; width: 45%; text-align: center;">
+            <div style="font-weight: bold; margin-bottom: 50px;">BÊN BÁN</div>
+            <div>(Ký tên, đóng dấu)</div>
+        </div>
+        <div style="display: inline-block; width: 45%; text-align: center;">
+            <div style="font-weight: bold; margin-bottom: 50px;">BÊN MUA</div>
+            <div>(Ký tên, đóng dấu)</div>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,382 @@
+<?php
+require 'vendor/autoload.php';
+
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpWord\TemplateProcessor;
+
+if (!isset($_FILES['excel_file'])) {
+    echo "<div style='
+        font-family: Arial, sans-serif;
+        background-color: #fff3cd;
+        color: #856404;
+        padding: 20px;
+        margin: 50px auto;
+        border: 1px solid #ffeeba;
+        border-radius: 8px;
+        width: fit-content;
+        text-align: center;
+    '>
+        <p><strong>Lỗi:</strong> Không có file nào được upload.</p>
+        <a href='index.php' style='
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+        '>Quay lại</a>
+    </div>";
+    exit;
+}
+$docType = $_POST['doc_type'] ?? 'HĐMB';
+
+$tmpPath = $_FILES['excel_file']['tmp_name'];
+$spreadsheet = IOFactory::load($tmpPath);
+$sheet = $spreadsheet->getActiveSheet();
+$data = $sheet->toArray(null, true, true, true);
+
+$headers = array_shift($data); // Lấy tiêu đề cột
+
+$outputDir = __DIR__ . '/output/';
+if (!is_dir($outputDir)) mkdir($outputDir, 0777, true);
+
+$index = 1;
+$currentYear = date('Y'); // Lấy năm hiện tại
+$placeholders = [
+    ['col' => 'A',  'index' => 1,  'name' => 'STT'],
+    ['col' => 'B',  'index' => 2,  'name' => 'MauSo'],
+    ['col' => 'C',  'index' => 3,  'name' => 'KyHieu'],
+    ['col' => 'D',  'index' => 4,  'name' => 'SoHoaDon'],
+    ['col' => 'E',  'index' => 5,  'name' => 'NgayThangNamHD'],
+    ['col' => 'F',  'index' => 6,  'name' => 'HoTenNguoiMua'],
+    ['col' => 'G',  'index' => 7,  'name' => 'CCCD'],
+    ['col' => 'H',  'index' => 8,  'name' => 'MaHoChieu'],
+    ['col' => 'I',  'index' => 9,  'name' => 'MaDVQHNS'],
+    ['col' => 'J',  'index' => 10, 'name' => 'TenDonVi'],
+    ['col' => 'K',  'index' => 11, 'name' => 'DiaChi'],
+    ['col' => 'L',  'index' => 12, 'name' => 'MaSoThue'],
+    ['col' => 'M',  'index' => 13, 'name' => 'TenHangHoaDichVu'],
+    ['col' => 'N',  'index' => 14, 'name' => 'SoLuong'],
+    ['col' => 'O',  'index' => 15, 'name' => 'DonGia'],
+    ['col' => 'P',  'index' => 16, 'name' => 'ThanhTien'],
+    ['col' => 'Q',  'index' => 17, 'name' => 'ThueSuat'],
+    ['col' => 'R',  'index' => 18, 'name' => 'TienThueGTGT'],
+    ['col' => 'S',  'index' => 19, 'name' => 'TongTienThanhToan'],
+    ['col' => 'T',  'index' => 20, 'name' => 'HinhThucTT'],
+    ['col' => 'U',  'index' => 21, 'name' => 'MTC'],
+    ['col' => 'V',  'index' => 22, 'name' => 'MaCuaCQT'],
+    ['col' => 'W',  'index' => 23, 'name' => 'TrangThaiHoaDon'],
+    ['col' => 'X',  'index' => 24, 'name' => 'GhiChu'],
+    ['col' => 'Y',  'index' => 25, 'name' => 'TienTe'],
+    ['col' => 'Z',  'index' => 26, 'name' => 'TyGia'],
+];
+
+$companies = [
+    '0108947484' => [
+        'ten'      => 'CÔNG TY CỔ PHẦN THIẾT BỊ ĐIỆN KING',
+        'code'     => 'K',
+        'code_name'=> 'KING',
+        'diachi'   => 'Thôn Từ Am – Xã Thanh Thùy – Huyện Thanh Oai - Thành phố Hà Nội, Việt Nam',
+        'sdt'      => '0929.112.999',
+        'fax'      => '',
+        'daidien'  => 'Ông Nguyễn Văn Tân',
+        'chucvu'   => 'Giám đốc',
+        'taikhoan' => '2662688888 – Tại Ngân hàng TMCP Á Châu – Chi nhánh Thanh Trì – Hà Nội',
+    ],
+    '0104315188' => [
+        'ten'      => 'CÔNG TY CỔ PHẦN SẢN XUẤT CƠ KHÍ VÀ THƯƠNG MẠI  THÁI DƯƠNG',
+        'code'     => 'TD',
+        'code_name'=> 'THAI_DUONG',
+        'diachi'   => 'Thôn Từ Am – Xã Thanh Thùy – Huyện Thanh Oai - Thành phố Hà Nội, Việt Nam',
+        'sdt'      => '0986.730.783',
+        'fax'      => '',
+        'daidien'  => 'Ông Thái Đình Vinh',
+        'chucvu'   => 'Giám đốc',
+        'taikhoan' => "26626888 – Tại Ngân hàng TMCP Á Châu – Chi nhánh Thanh Trì – Hà Nội.\n0101100118999 – Tại ngân hàng TMCP Quân Đội – CN Sở giao dịch 1.",
+    ],
+    '0111078788' => [
+        'ten'      => 'CÔNG TY TNHH SẢN XUẤT CƠ KHÍ VÀ THUƠNG MẠI TUẤN KIỆT',
+        'code'     => 'TK',
+        'code_name'=> 'TUAN_KIET',
+        'diachi'   => 'Số nhà 35, ngõ Đồng Đanh, thôn Rùa Thượng, xã Thanh Thùy, Huyện Thanh Oai,Thành Phố Hà Nội, Việt Nam.',
+        'sdt'      => '',
+        'fax'      => '',
+        'daidien'  => 'Ông Nguyễn Văn Bách',
+        'chucvu'   => 'Giám đốc',
+        'taikhoan' => '',
+    ],
+    '0107172756' => [
+        'ten'      => 'CÔNG TY TNHH SẢN XUẤT VÀ THƯƠNG MẠI CƠ KHÍ TIẾN THÀNH',
+        'code'     => 'TT',
+        'code_name'=> 'TIEN_THANH',
+        'diachi'   => 'Thôn Rùa Hạ, Xã Thanh Thùy, Huyện Thanh Oai, Thành phố Hà Nội, Việt Nam',
+        'sdt'      => '0986.132.374',
+        'fax'      => '',
+        'daidien'  => 'Ông Lý Văn Đấu',
+        'chucvu'   => 'Giám đốc',
+        'taikhoan' => '119000165843 tại Ngân hàng VietinBank',
+    ],
+    '0110857100' => [
+        'ten'      => 'CÔNG TY TNHH THƯƠNG MAI VÀ SẢN XUẤT HOÀNG KIM VIỆT NAM',
+        'code'     => 'HK',
+        'code_name'=> 'HOANG_KIM',
+        'diachi'   => 'Số 6, Xóm Mới, Thôn Rùa Thượng, Xã Thanh Thùy, Huyện Thanh Oai, Thành phố Hà Nội, Việt Nam',
+        'sdt'      => '0337.333.886',
+        'fax'      => '',
+        'daidien'  => 'Lê Hoàng Thương',
+        'chucvu'   => 'Giám đốc',
+        'taikhoan' => '',
+    ],
+    '0109436210' => [
+        'ten'      => 'CÔNG TY TNHH XÂY DỰNG CƠ KHÍ MINH TÂM',
+        'code'     => 'MT',
+        'code_name'=> 'MINH_TAM',
+        'diachi'   => 'Cụm Công Nghiệp Thanh Oai, Xã Bích Hòa, Huyện Thanh Oai, Thành phố Hà Nội, Việt Nam',
+        'sdt'      => '0936.133.995 - 0937.133.995',
+        'fax'      => '',
+        'daidien'  => 'Bà Nguyễn Thị Bích Ngọc',
+        'chucvu'   => 'Giám đốc',
+        'taikhoan' => '5151133995995 tại Ngân hàng Quân Đội chi nhanh Tây Hà Nội',
+    ],
+    '0109581881' => [
+        'ten'      => 'CÔNG TY TNHH SẢN XUẤT CƠ KHÍ VÀ THƯƠNG MẠI NHẬT MINH',
+        'code'     => 'NM',
+        'code_name'=> 'NHAT_MINH',
+        'diachi'   => 'Thôn Rùa Thượng, Xã Thanh Thùy, Huyện Thanh Oai, Thành phố Hà Nội, Việt Nam',
+        'sdt'      => '',
+        'fax'      => '',
+        'daidien'  => 'Ông Hoàng Trường Đông',
+        'chucvu'   => 'Giám đốc',
+        'taikhoan' => '868388.8683888 tại Ngân hàng TMCP Quân Đội chi nhanh Tây Hà Nội',
+    ],
+    '0107394773' => [
+        'ten'      => 'CÔNG TY TNHH THIẾT BỊ HANOIME',
+        'code'     => 'HNM',
+        'code_name'=> 'HANOIME',
+        'diachi'   => 'Số 39B, ngõ 2 Quang Trung, Phường Quang Trung, Quận Hà Đông, Thành phố Hà Nội, Việt Nam',
+        'sdt'      => '',
+        'fax'      => '',
+        'daidien'  => '',
+        'chucvu'   => '',
+        'taikhoan' => '',
+    ],
+    '0601194984' => [
+        'ten'      => 'CÔNG TY TNHH ĐẦU TƯ VÀ SẢN XUẤT ĐẠI LINH',
+        'code'     => 'DL',
+        'code_name'=> 'DAI_LINH',
+        'diachi'   => 'Tổ 15, Thị trấn Nam Giang, Huyện Nam Trực, Tỉnh Nam Định, Việt Nam',
+        'sdt'      => '',
+        'fax'      => '',
+        'daidien'  => '',
+        'chucvu'   => '',
+        'taikhoan' => '',
+    ],
+    '0109691813' => [
+        'ten'      => 'CÔNG TY CỔ PHẦN SẢN XUẤT VÀ THƯƠNG MẠI  ANH QUÂN',
+        'code'     => 'AQ',
+        'code_name'=> 'ANH_QUAN',
+        'diachi'   => 'Cụm 7 Thôn Phượng Nghĩa, Xã Phụng Châu, Huyện Chương Mỹ, Thành phố Hà Nội, Việt Nam',
+        'sdt'      => '',
+        'fax'      => '',
+        'daidien'  => '',
+        'chucvu'   => '',
+        'taikhoan' => '',
+    ],
+    '0110133651' => [
+        'ten'      => 'CÔNG TY TNHH SẢN XUẤT VÀ THƯƠNG MAI KIÊN GIA',
+        'code'     => 'KG',
+        'code_name'=> 'KIEN_GIA',
+        'diachi'   => 'LK3-19 Khu đô thị Tân Tây Đô, Xã Tân Lập, Huyện Đan Phượng, Thành phố Hà Nội, Việt Nam',
+        'sdt'      => '',
+        'fax'      => '',
+        'daidien'  => '',
+        'chucvu'   => '',
+        'taikhoan' => '',
+    ],
+    '0500567284' => [
+        'ten'      => 'CÔNG TY TNHH CƠ KHÍ THIÊN PHÚ',
+        'code'     => 'TP',
+        'code_name'=> 'THIEN_PHU',
+        'diachi'   => 'Thôn Rùa Hạ, xã Thanh Thùy, huyện Thanh Oai, thành phố Hà Nội',
+        'sdt'      => '',
+        'fax'      => '',
+        'daidien'  => 'Ông Nguyễn Văn Biên',
+        'chucvu'   => 'Giám đốc',
+        'taikhoan' => '',
+    ],
+    '0110985984' => [
+        'ten'      => 'Công Ty TNHH Phát Triển SX & TM Khang Thịnh Phát',
+        'code'     => 'KTP',
+        'code_name'=> 'KHANG_THINH_PHAT',
+        'diachi'   => 'Số nhà 78 Thôn Phú Đôi - Xã Văn Hoàng - Huyện Phú Xuyên -TP Hà Nội',
+        'sdt'      => '0973.086.263',
+        'fax'      => '',
+        'daidien'  => 'Ông Nguyễn Xuân Khang',
+        'chucvu'   => 'Giám đốc',
+        'taikhoan' => '2208197638888 Ngân Hàng AGRIBANK Chi Nhánh Thường Tín- Số 116-Thị Trấn Thường Tín-Huyện Thường Tín-TP Hà Nội',
+    ],
+    '0107017038' => [
+        'ten'      => 'CÔNG TY CỔ PHẦN DMEC VIỆT NAM',
+        'code'     => 'DMEC',
+        'code_name'=> 'DMEC',
+        'diachi'   => 'Số 130 ngõ Thịnh Quang, phố Thái Thịnh, Phường Thịnh Quang, Quận Đống Đa, Thành phố Hà Nội, Việt Nam',
+        'sdt'      => '',
+        'fax'      => '',
+        'daidien'  => 'Ông Đàm Đình Trường',
+        'chucvu'   => 'Giám đốc',
+        'taikhoan' => '1913 0816 3188 68 tại Ngân hàng Techcombank – Chi nhánh Trần Điền- Hà Nội',
+    ],
+];
+/**
+ * @param $number
+ * @return string
+ */
+function numberToVietnameseWords($number) {
+    $formatter = new NumberFormatter("vi", NumberFormatter::SPELLOUT);
+    $text = $formatter->format($number);
+    $text = ucfirst($text);
+    $text = str_replace(['phẩy', 'âm '], ['', ''], $text);
+    return $text . ' đồng chẵn';
+}
+
+
+foreach ($data as $row) {
+    // 👉 Xử lý công ty trước để chọn đúng template
+    $maSoThue = $row['L'] ?? '';
+    if (!isset($companies[$maSoThue])) {
+        echo "<h2 style='color: red;'>❌ Không tìm thấy công ty có mã số thuế: <strong>$maSoThue</strong></h2>";
+        echo "<a href='index.php'><button>⬅ Quay lại</button></a>";
+        exit;
+    }
+
+    $companyInfo = $companies[$maSoThue];
+    $isThaiDuong = $companyInfo['code'] === 'TD';
+
+    // 👉 Chọn template
+    $templateFile = $isThaiDuong ? 'template2.docx' : 'template.docx';
+    $template = new TemplateProcessor($templateFile);
+
+    //-------------------------------------------------------------------------------
+    // 👉 Xử lý đặc biệt cột E - NgayThangNamHD
+    $originalDate = $row['E'] ?? '';
+    $formattedDate = '';
+    $originalYear = '';
+
+    if (!empty($originalDate)) {
+        if (is_numeric($originalDate)) {
+            $phpDate = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($originalDate);
+        } else {
+            $phpDate = DateTime::createFromFormat('d/m/Y', $originalDate) ?: DateTime::createFromFormat('d-m-Y', $originalDate);
+        }
+
+        if ($phpDate) {
+            $phpDate->modify('-10 days');
+            $formattedDate = $phpDate->format('dmY');
+            $originalYear = $phpDate->format('Y');
+        }
+    }
+
+    $row['E'] = $formattedDate;
+
+    //-------------------------------------------------------------------------------
+    // 👉 Gán thông tin công ty
+    $template->setValue('Info_MaSoThue',         $maSoThue);
+    $template->setValue('Info_TenCongTy',        $companyInfo['code']);
+    $template->setValue('Info_TenDonViDayDu',    $companyInfo['ten']);
+    $template->setValue('Info_DiaChi',           $companyInfo['diachi']);
+    $template->setValue('Info_DienThoai',        $companyInfo['sdt']);
+    $template->setValue('Info_Fax',              $companyInfo['fax']);
+    $template->setValue('Info_DaiDien',          $companyInfo['daidien']);
+    $template->setValue('Info_ChucVu',           $companyInfo['chucvu']);
+
+    // 👉 Tài khoản: xử lý riêng cho TD
+    if ($isThaiDuong) {
+        $taikhoanLines = preg_split('/\r\n|\r|\n/', trim($companyInfo['taikhoan']));
+        $template->setValue('Info_TaiKhoan1', $taikhoanLines[0] ?? '');
+        $template->setValue('Info_TaiKhoan2', $taikhoanLines[1] ?? '');
+    } else {
+        $template->setValue('Info_TaiKhoan', trim($companyInfo['taikhoan']));
+    }
+
+    // 👉 Gán năm vào template
+    $template->setValue('NamHienTai', $originalYear ?? '');
+
+    // 👉 Map dữ liệu từ Excel
+    $fieldsNeedFormat = ['SoLuong', 'DonGia', 'ThanhTien', 'TienThueGTGT', 'TongTienThanhToan'];
+    $tongTienFormatted = '';
+    $tongTienNumeric = 0;
+
+    foreach ($headers as $col => $fieldName) {
+        $value = $row[$col] ?? '';
+
+        if (in_array($fieldName, $fieldsNeedFormat)) {
+            $valueClean = str_replace(',', '', $value);
+            $formatted = number_format((float)$valueClean, 0, ',', '.');
+
+            if ($fieldName === 'TongTienThanhToan') {
+                $tongTienFormatted = $formatted;
+                $tongTienNumeric = (float)$valueClean;
+            }
+
+            $value = $formatted;
+        }
+
+        $template->setValue($fieldName, $value);
+    }
+
+    // 👉 Thêm giá trị bằng chữ cho TongTienThanhToan
+    $tienBangChu = numberToVietnameseWords($tongTienNumeric);
+    $template->setValue('TongTienThanhToan_BangChu', $tienBangChu);
+
+    //👉 Lưu file vào thư mục
+    $codeName = $companyInfo['code_name'];
+    $companyDir = $outputDir . $codeName . '/';
+    if (!is_dir($companyDir)) {
+        mkdir($companyDir, 0777, true);
+    }
+
+    $fileName = "HĐMB_{$originalYear}_{$codeName}_{$index}.docx";
+    $savePath = $companyDir . $fileName;
+    $template->saveAs($savePath);
+
+    $index++;
+}
+
+
+echo "<div style='
+    font-family: Arial, sans-serif;
+    background-color: #d4edda;
+    color: #155724;
+    padding: 20px;
+    margin: 50px auto;
+    border: 1px solid #c3e6cb;
+    border-radius: 10px;
+    width: fit-content;
+    text-align: center;
+'>
+    <p><strong>✅ Thành công!</strong> Đã tạo " . ($index - 1) . " hợp đồng tại thư mục <code>output</code>.</p>
+    <div style='margin-top: 15px;'>
+        <a href='output/' target='_blank' style='
+            display: inline-block;
+            padding: 10px 20px;
+            margin-right: 10px;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+        '>📂 Xem hợp đồng</a>
+
+        <a href='index.php' style='
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+        '>⬅️ Quay về</a>
+    </div>
+</div>";
