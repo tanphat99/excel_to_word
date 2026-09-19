@@ -45,10 +45,11 @@ $outputDir = __DIR__ . '/output/';
 if (!is_dir($outputDir)) mkdir($outputDir, 0777, true);
 
 /**
- * Tên công ty rút về dạng đặt được cho thư mục trên Windows.
+ * Tên viết tắt của công ty, rút về dạng đặt được cho thư mục trên Windows.
  */
 function folderName(array $companyInfo) {
-    $name = preg_replace('/[\\\\\/:*?"<>|]+/u', ' ', $companyInfo['ten']);
+    $name = $companyInfo['ten_viet_tat'] ?? str_replace('_', ' ', $companyInfo['code_name']);
+    $name = preg_replace('/[\\\\\/:*?"<>|]+/u', ' ', $name);
     $name = preg_replace('/\s+/u', ' ', trim($name));
     return mb_substr($name, 0, 90);
 }
