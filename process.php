@@ -543,14 +543,19 @@ if ($docType === 'BBGN_WORD' || $docType === 'DDH') {
         exit;
     }
 
-    // 👉 Ngày ký hợp đồng nguyên tắc do người dùng chọn ở form.
-    //    Số hợp đồng lấy tháng và năm của chính ngày này: ký 10/01/2026 => 012026
-    $hdntDate = !empty($_POST['hdnt_ngay'])
+    // 👉 2 ngày của hợp đồng nguyên tắc do người dùng chọn ở form:
+    //    - ngày hợp đồng: số hợp đồng lấy tháng/năm của ngày này (01/2026 => 012026)
+    //    - ngày ký: điền vào câu "ký ngày ... tháng ... năm ..."
+    $hdntHopDongDate = !empty($_POST['hdnt_hd_ngay'])
+        ? DateTime::createFromFormat('Y-m-d', $_POST['hdnt_hd_ngay'])
+        : null;
+
+    $hdntKyDate = !empty($_POST['hdnt_ngay'])
         ? DateTime::createFromFormat('Y-m-d', $_POST['hdnt_ngay'])
         : null;
 
-    if (!$hdntDate) {
-        echo "<h2 style='color: red;'>❌ Chưa chọn ngày ký hợp đồng nguyên tắc.</h2>";
+    if (!$hdntHopDongDate || !$hdntKyDate) {
+        echo "<h2 style='color: red;'>❌ Chưa chọn đủ ngày hợp đồng nguyên tắc và ngày ký.</h2>";
         echo "<a href='index.php'><button>⬅ Quay lại</button></a>";
         exit;
     }
@@ -591,11 +596,11 @@ if ($docType === 'BBGN_WORD' || $docType === 'DDH') {
             'BenA_DienThoai' => $companyInfo['sdt'],
             'BenA_TaiKhoan'  => $companyInfo['taikhoan'],
 
-            // Hợp đồng nguyên tắc — số mang tháng/năm của ngày ký
-            'HDNT_So'    => $hdntDate->format('mY') . '/HĐNT PT- ' . str_replace('_', ' ', $codeName),
-            'HDNT_Ngay'  => $hdntDate->format('d'),
-            'HDNT_Thang' => $hdntDate->format('m'),
-            'HDNT_Nam'   => $hdntDate->format('Y'),
+            // Hợp đồng nguyên tắc — số mang tháng/năm của ngày hợp đồng
+            'HDNT_So'    => $hdntHopDongDate->format('mY') . '/HĐNT PT- ' . str_replace('_', ' ', $codeName),
+            'HDNT_Ngay'  => $hdntKyDate->format('d'),
+            'HDNT_Thang' => $hdntKyDate->format('m'),
+            'HDNT_Nam'   => $hdntKyDate->format('Y'),
 
             // Ngày trên biên bản giao nhận = ngày hóa đơn
             'BBGN_Ngay'  => $ngayHoaDon->format('d'),

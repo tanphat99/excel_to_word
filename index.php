@@ -11,8 +11,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            padding: 1.5rem 1rem;
+            box-sizing: border-box;
         }
 
         .container {
@@ -46,18 +48,10 @@
             border-color: #007bff;
         }
 
-        .doc-row {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .doc-row select {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .doc-row select,
-        .doc-row input[type="date"] {
+        select,
+        input[type="date"] {
+            width: 100%;
+            box-sizing: border-box;
             padding: 0.6rem;
             border: 1px solid #c3c6cf;
             border-radius: 8px;
@@ -67,8 +61,32 @@
             color: #333;
         }
 
-        .doc-row input[type="date"]:disabled {
+        input[type="date"]:disabled {
             background-color: #f1f2f5;
+            color: #9a9ea8;
+        }
+
+        .date-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .date-row .field {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .date-row label {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #5a5f6a;
+            text-align: left;
+        }
+
+        .date-row.muted label {
             color: #9a9ea8;
         }
 
@@ -117,19 +135,26 @@
     <form action="process.php" method="post" enctype="multipart/form-data">
         <input type="file" name="excel_file" accept=".xlsx,.xls" required>
 
-        <div class="doc-row">
-            <select name="doc_type" id="doc_type" required>
-                <!-- <option value="HĐMB">Hợp Đồng Mua Bán (Word - DOCX Template)</option> -->
-                <option value="HĐMB_HTML">Hợp Đồng Mua Bán (Word - HTML Template)</option>
-                <option value="BBGN">Biên Bản Giao Nhận (Excel)</option>
-                <option value="BBGN_WORD">Biên Bản Giao Nhận Hàng Hóa (Word)</option>
-                <option value="DDH">Đơn Đặt Hàng (Word)</option>
-            </select>
+        <select name="doc_type" id="doc_type" required>
+            <!-- <option value="HĐMB">Hợp Đồng Mua Bán (Word - DOCX Template)</option> -->
+            <option value="HĐMB_HTML">Hợp Đồng Mua Bán (Word - HTML Template)</option>
+            <option value="BBGN">Biên Bản Giao Nhận (Excel)</option>
+            <option value="BBGN_WORD">Biên Bản Giao Nhận Hàng Hóa (Word)</option>
+            <option value="DDH">Đơn Đặt Hàng (Word)</option>
+        </select>
 
-            <input type="date" name="hdnt_ngay" id="hdnt_ngay" title="Ngày ký hợp đồng nguyên tắc">
+        <div class="date-row" id="hdnt_box">
+            <div class="field">
+                <label for="hdnt_hd_ngay">Ngày hợp đồng nguyên tắc</label>
+                <input type="date" name="hdnt_hd_ngay" id="hdnt_hd_ngay">
+            </div>
+            <div class="field">
+                <label for="hdnt_ngay">Ngày ký</label>
+                <input type="date" name="hdnt_ngay" id="hdnt_ngay">
+            </div>
         </div>
 
-        <p class="hint" id="hdnt_hint">Ngày ký hợp đồng nguyên tắc — dùng cho Biên Bản Giao Nhận (Word) và Đơn Đặt Hàng. Số hợp đồng lấy theo tháng/năm của ngày này (ký 10/01/2026 → 012026).</p>
+        <p class="hint" id="hdnt_hint">Dùng cho Biên Bản Giao Nhận (Word) và Đơn Đặt Hàng. Số hợp đồng lấy tháng/năm của ngày hợp đồng nguyên tắc (01/2026 → 012026).</p>
 
         <button type="submit">Tạo Tài Liệu</button>
     </form>
@@ -137,16 +162,22 @@
 </div>
 
 <script>
-    // Ngày ký hợp đồng nguyên tắc chỉ dùng cho 2 template Word mới
+    // 2 ô ngày hợp đồng nguyên tắc chỉ dùng cho 2 template Word mới
     (function () {
         var docType = document.getElementById('doc_type');
-        var ngayKy = document.getElementById('hdnt_ngay');
+        var box = document.getElementById('hdnt_box');
         var hint = document.getElementById('hdnt_hint');
+        var inputs = box.querySelectorAll('input[type="date"]');
 
         function toggle() {
             var canDung = docType.value === 'BBGN_WORD' || docType.value === 'DDH';
-            ngayKy.disabled = !canDung;
-            ngayKy.required = canDung;
+
+            Array.prototype.forEach.call(inputs, function (input) {
+                input.disabled = !canDung;
+                input.required = canDung;
+            });
+
+            box.classList.toggle('muted', !canDung);
             hint.classList.toggle('muted', !canDung);
         }
 
