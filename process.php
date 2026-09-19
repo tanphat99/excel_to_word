@@ -44,6 +44,37 @@ $headers = array_shift($data); // Lấy tiêu đề cột
 $outputDir = __DIR__ . '/output/';
 if (!is_dir($outputDir)) mkdir($outputDir, 0777, true);
 
+/**
+ * Mỗi loại tài liệu một thư mục riêng, mỗi lần export một thư mục con theo
+ * ngày giờ phút, để các lần chạy không lẫn vào nhau.
+ *
+ * @return string đường dẫn tương đối, vd: BienBanGiaoNhan_Word/19-09-2026_20-45/
+ */
+function exportPath($outputDir, $docType) {
+    $folders = [
+        'HĐMB'      => 'HopDongMuaBan',
+        'HĐMB_HTML' => 'HopDongMuaBan',
+        'BBGN'      => 'BienBanGiaoNhan_Excel',
+        'BBGN_WORD' => 'BienBanGiaoNhan_Word',
+        'DDH'       => 'DonDatHang',
+    ];
+
+    $base = ($folders[$docType] ?? 'Khac') . '/' . date('d-m-Y_H-i');
+
+    // Export 2 lần trong cùng một phút thì tách ra -2, -3... để không đè file
+    $path = $base;
+    for ($n = 2; is_dir($outputDir . $path); $n++) {
+        $path = $base . '-' . $n;
+    }
+
+    return $path . '/';
+}
+
+// 👉 Thư mục của riêng lần export này
+$exportPath = exportPath($outputDir, $docType);
+$exportDir  = $outputDir . $exportPath;
+$exportLink = 'output/' . $exportPath;
+
 $index = 1;
 $currentYear = date('Y'); // Lấy năm hiện tại
 $placeholders = [
@@ -493,7 +524,7 @@ if ($docType === 'BBGN') {
 
         $sheet->setCellValue('G15',  $valueFormatted);
 
-        $companyDir = $outputDir . "BBGN/{$codeName}/";
+        $companyDir = $exportDir . $codeName . '/';
         if (!is_dir($companyDir)) mkdir($companyDir, 0777, true);
 
         $ymd = $phpDate->format('d_m_Y');
@@ -516,9 +547,9 @@ if ($docType === 'BBGN') {
         width: fit-content;
         text-align: center;
     '>
-        <p><strong>✅ Thành công!</strong> Đã tạo file BBGN trong thư mục <code>output/BBGN/</code>.</p>
+        <p><strong>✅ Thành công!</strong> Đã tạo file BBGN trong thư mục <code>{$exportLink}</code>.</p>
         <div style='margin-top: 15px;'>
-            <a href='output/BBGN/' target='_blank' style='
+            <a href='{$exportLink}' target='_blank' style='
                 display: inline-block;
                 padding: 10px 20px;
                 margin-right: 10px;
@@ -547,8 +578,8 @@ if ($docType === 'BBGN_WORD' || $docType === 'DDH') {
     $isDonDatHang = ($docType === 'DDH');
 
     $config = $isDonDatHang
-        ? ['template' => 'template_DDH.docx',       'folder' => 'DDH',       'prefix' => 'DDH']
-        : ['template' => 'template_BBGN_word.docx', 'folder' => 'BBGN_WORD', 'prefix' => 'BBGN'];
+        ? ['template' => 'template_DDH.docx',       'prefix' => 'DDH']
+        : ['template' => 'template_BBGN_word.docx', 'prefix' => 'BBGN'];
 
     if (!file_exists($config['template'])) {
         echo "<h2 style='color: red;'>❌ Thiếu file template <code>{$config['template']}</code>. Chạy <code>php build_templates.php</code> để tạo lại.</h2>";
@@ -640,7 +671,7 @@ if ($docType === 'BBGN_WORD' || $docType === 'DDH') {
             'TongTienBangChu'   => numberToVietnameseWords(toNumber($row['S'] ?? '')),
         ]));
 
-        $companyDir = $outputDir . $config['folder'] . "/{$codeName}/";
+        $companyDir = $exportDir . $codeName . '/';
         if (!is_dir($companyDir)) mkdir($companyDir, 0777, true);
 
         $fileName = "{$config['prefix']}_{$ngayVanBan->format('d_m_Y')}_{$codeName}_{$index}.docx";
@@ -661,9 +692,9 @@ if ($docType === 'BBGN_WORD' || $docType === 'DDH') {
         width: fit-content;
         text-align: center;
     '>
-        <p><strong>✅ Thành công!</strong> Đã tạo " . ($index - 1) . " $tenTaiLieu tại thư mục <code>output/{$config['folder']}/</code>.</p>
+        <p><strong>✅ Thành công!</strong> Đã tạo " . ($index - 1) . " $tenTaiLieu tại thư mục <code>{$exportLink}</code>.</p>
         <div style='margin-top: 15px;'>
-            <a href='output/{$config['folder']}/' target='_blank' style='
+            <a href='{$exportLink}' target='_blank' style='
                 display: inline-block;
                 padding: 10px 20px;
                 margin-right: 10px;
@@ -1072,7 +1103,7 @@ if ($docType === 'HĐMB_HTML') {
 
         //👉 Lưu file vào thư mục
         $codeName = $companyInfo['code_name'];
-        $companyDir = $outputDir . $codeName . '/';
+        $companyDir = $exportDir . $codeName . '/';
         if (!is_dir($companyDir)) {
             mkdir($companyDir, 0777, true);
         }
@@ -1110,9 +1141,9 @@ if ($docType === 'HĐMB_HTML') {
         width: fit-content;
         text-align: center;
     '>
-        <p><strong>✅ Thành công!</strong> Đã tạo " . ($index - 1) . " hợp đồng từ HTML template tại thư mục <code>output</code>.</p>
+        <p><strong>✅ Thành công!</strong> Đã tạo " . ($index - 1) . " hợp đồng từ HTML template tại thư mục <code>{$exportLink}</code>.</p>
         <div style='margin-top: 15px;'>
-            <a href='output/' target='_blank' style='
+            <a href='{$exportLink}' target='_blank' style='
                 display: inline-block;
                 padding: 10px 20px;
                 margin-right: 10px;
@@ -1228,7 +1259,7 @@ foreach ($data as $row) {
 
     //👉 Lưu file vào thư mục
     $codeName = $companyInfo['code_name'];
-    $companyDir = $outputDir . $codeName . '/';
+    $companyDir = $exportDir . $codeName . '/';
     if (!is_dir($companyDir)) {
         mkdir($companyDir, 0777, true);
     }
@@ -1252,9 +1283,9 @@ echo "<div style='
     width: fit-content;
     text-align: center;
 '>
-    <p><strong>✅ Thành công!</strong> Đã tạo " . ($index - 1) . " hợp đồng tại thư mục <code>output</code>.</p>
+    <p><strong>✅ Thành công!</strong> Đã tạo " . ($index - 1) . " hợp đồng tại thư mục <code>{$exportLink}</code>.</p>
     <div style='margin-top: 15px;'>
-        <a href='output/' target='_blank' style='
+        <a href='{$exportLink}' target='_blank' style='
             display: inline-block;
             padding: 10px 20px;
             margin-right: 10px;
