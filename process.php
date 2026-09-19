@@ -340,6 +340,19 @@ $companies = [
         'chucvu'   => 'Giám Đốc',
         'taikhoan' => '90972325 tại Ngân Hàng TMCP quân đội MB - Chi nhánh Thụy Khuê',
     ],
+    '0111167893' => [
+        'ten'      => 'CÔNG TY TNHH PCCC TRẦN GIA',
+        'code'     => 'TG',
+        'code_name'=> 'PCCC_TRAN_GIA',
+        // Tên viết tắt dùng trong số hợp đồng nguyên tắc; bỏ trống thì lấy code_name
+        'ten_viet_tat' => 'PCCC Trần Gia',
+        'diachi'   => 'Số nhà 8, Ngách 7/24, Ngõ 311, Xóm Tiền Phong, Xã An Khánh, TP Hà Nội, Việt Nam',
+        'sdt'      => '',
+        'fax'      => '',
+        'daidien'  => 'Bà Trần Thị Thanh Huyền',
+        'chucvu'   => 'Giám đốc',
+        'taikhoan' => '2299686868 tại ngân hàng TMCP Sài Gòn - Hà Nội – Chi nhánh Hà Thành',
+    ],
 ];
 /**
  * @param $number
@@ -597,7 +610,8 @@ if ($docType === 'BBGN_WORD' || $docType === 'DDH') {
             'BenA_TaiKhoan'  => $companyInfo['taikhoan'],
 
             // Hợp đồng nguyên tắc — số mang tháng/năm của ngày hợp đồng
-            'HDNT_So'    => $hdntHopDongDate->format('mY') . '/HĐNT PT- ' . str_replace('_', ' ', $codeName),
+            'HDNT_So'    => $hdntHopDongDate->format('mY') . '/HĐNT PT- '
+                . ($companyInfo['ten_viet_tat'] ?? str_replace('_', ' ', $codeName)),
             'HDNT_Ngay'  => $hdntKyDate->format('d'),
             'HDNT_Thang' => $hdntKyDate->format('m'),
             'HDNT_Nam'   => $hdntKyDate->format('Y'),
