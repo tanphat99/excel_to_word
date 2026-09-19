@@ -353,6 +353,41 @@ function numberToVietnameseWords($number) {
     return $text . ' đồng chẵn';
 }
 
+/**
+ * Ngày trong Excel có thể là số serial hoặc chuỗi d/m/Y, d-m-Y
+ * @return DateTime|null
+ */
+function parseExcelDate($value) {
+    if ($value === null || $value === '') return null;
+
+    if (is_numeric($value)) {
+        return \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($value);
+    }
+
+    $value = trim((string)$value);
+    $date = DateTime::createFromFormat('d/m/Y', $value) ?: DateTime::createFromFormat('d-m-Y', $value);
+    return $date ?: null;
+}
+
+/** "  53,510.000000 " => 53510.0 */
+function toNumber($value) {
+    return (float) str_replace(',', '', trim((string)$value));
+}
+
+/** "  53,510.000000 " => "53.510" */
+function formatNumber($value) {
+    return number_format(toNumber($value), 0, ',', '.');
+}
+
+/**
+ * Chuẩn bị giá trị trước khi đổ vào template Word:
+ * escape ký tự XML (tên công ty có dấu &) và giữ lại chỗ xuống dòng.
+ */
+function wordValue($value) {
+    $escaped = htmlspecialchars(trim((string)$value), ENT_NOQUOTES | ENT_XML1, 'UTF-8');
+    return preg_replace('/\s*\R\s*/u', '</w:t><w:br/><w:t xml:space="preserve">', $escaped);
+}
+
 
 // 📌 Xử lý BBGN (Xuất file Excel mỗi dòng)
 if ($docType === 'BBGN') {
@@ -489,6 +524,142 @@ if ($docType === 'BBGN') {
                 border-radius: 6px;
                 font-weight: bold;
             '>⬅️ Quay lại</a>
+        </div>
+    </div>";
+    exit;
+}
+
+// 📌 Xử lý BBGN (Word) và ĐĐH — cùng nguồn dữ liệu, chỉ khác template và nơi lưu
+if ($docType === 'BBGN_WORD' || $docType === 'DDH') {
+    $isDonDatHang = ($docType === 'DDH');
+
+    $config = $isDonDatHang
+        ? ['template' => 'template_DDH.docx',       'folder' => 'DDH',       'prefix' => 'DDH']
+        : ['template' => 'template_BBGN_word.docx', 'folder' => 'BBGN_WORD', 'prefix' => 'BBGN'];
+
+    if (!file_exists($config['template'])) {
+        echo "<h2 style='color: red;'>❌ Thiếu file template <code>{$config['template']}</code>. Chạy <code>php build_templates.php</code> để tạo lại.</h2>";
+        echo "<a href='index.php'><button>⬅ Quay lại</button></a>";
+        exit;
+    }
+
+    // 👉 Ngày ký hợp đồng nguyên tắc do người dùng chọn ở form
+    $hdntDate = !empty($_POST['hdnt_ngay'])
+        ? DateTime::createFromFormat('Y-m-d', $_POST['hdnt_ngay'])
+        : null;
+
+    foreach ($data as $row) {
+        $maSoThue = $row['L'] ?? '';
+        if (!isset($companies[$maSoThue])) {
+            echo "<h2 style='color: red;'>❌ Không tìm thấy công ty có mã số thuế: <strong>$maSoThue</strong></h2>";
+            echo "<a href='index.php'><button>⬅ Quay lại</button></a>";
+            exit;
+        }
+
+        $companyInfo = $companies[$maSoThue];
+        $codeName    = $companyInfo['code_name'];
+
+        // 👉 BBGN mang ngày hóa đơn, ĐĐH lùi 10 ngày so với hóa đơn
+        $ngayHoaDon = parseExcelDate($row['E'] ?? '');
+        if (!$ngayHoaDon) {
+            echo "<div style='color: red;'>❌ Bỏ qua 1 dòng: không đọc được ngày ở cột E ("
+                . htmlspecialchars((string)($row['E'] ?? '')) . ")</div>";
+            continue;
+        }
+
+        $ngayDonDatHang = (clone $ngayHoaDon)->modify('-10 days');
+        $ngayVanBan     = $isDonDatHang ? $ngayDonDatHang : $ngayHoaDon;
+
+        // 👉 Số đơn đặt hàng viết theo dạng ddmm/yyyy như file mẫu
+        $soDonDatHang = $ngayDonDatHang->format('dm/Y');
+
+        // 👉 Số hợp đồng nguyên tắc sinh theo năm ký và tên viết tắt của bên mua
+        $namHopDong = $hdntDate ? $hdntDate->format('Y') : $ngayDonDatHang->format('Y');
+
+        $template = new TemplateProcessor($config['template']);
+        $template->setValues(array_map('wordValue', [
+            // Bên A - bên mua, tra theo mã số thuế ở cột L
+            'BenA_Ten'       => $companyInfo['ten'],
+            'BenA_DaiDien'   => $companyInfo['daidien'],
+            'BenA_ChucVu'    => $companyInfo['chucvu'],
+            'BenA_DiaChi'    => $companyInfo['diachi'],
+            'BenA_MaSoThue'  => $maSoThue,
+            'BenA_DienThoai' => $companyInfo['sdt'],
+            'BenA_TaiKhoan'  => $companyInfo['taikhoan'],
+
+            // Hợp đồng nguyên tắc
+            'HDNT_So'    => '01' . $namHopDong . '/HĐNT PT- ' . str_replace('_', ' ', $codeName),
+            'HDNT_Ngay'  => $hdntDate ? $hdntDate->format('d') : '……',
+            'HDNT_Thang' => $hdntDate ? $hdntDate->format('m') : '……',
+            'HDNT_Nam'   => $hdntDate ? $hdntDate->format('Y') : '……',
+
+            // Ngày trên biên bản giao nhận = ngày hóa đơn
+            'BBGN_Ngay'  => $ngayHoaDon->format('d'),
+            'BBGN_Thang' => $ngayHoaDon->format('m'),
+            'BBGN_Nam'   => $ngayHoaDon->format('Y'),
+
+            // Đơn đặt hàng
+            'DDH_So'      => $soDonDatHang . '/ ĐĐH',
+            'DDH_NgayGon' => $soDonDatHang,
+            'DDH_Ngay'    => $ngayDonDatHang->format('d'),
+            'DDH_Thang'   => $ngayDonDatHang->format('m'),
+            'DDH_Nam'     => $ngayDonDatHang->format('Y'),
+
+            // Hàng hóa và tiền
+            'TenHangHoa'        => $row['M'] ?? '',
+            'DonViTinh'         => 'Kg',
+            'SoLuong'           => formatNumber($row['N'] ?? ''),
+            'DonGia'            => formatNumber($row['O'] ?? ''),
+            'ThanhTien'         => formatNumber($row['P'] ?? ''),
+            'ThueSuat'          => $row['Q'] ?? '',
+            'TienThueGTGT'      => formatNumber($row['R'] ?? ''),
+            'TongTienThanhToan' => formatNumber($row['S'] ?? ''),
+            'TongTienBangChu'   => numberToVietnameseWords(toNumber($row['S'] ?? '')),
+        ]));
+
+        $companyDir = $outputDir . $config['folder'] . "/{$codeName}/";
+        if (!is_dir($companyDir)) mkdir($companyDir, 0777, true);
+
+        $fileName = "{$config['prefix']}_{$ngayVanBan->format('d_m_Y')}_{$codeName}_{$index}.docx";
+        $template->saveAs($companyDir . $fileName);
+
+        $index++;
+    }
+
+    $tenTaiLieu = $isDonDatHang ? 'đơn đặt hàng' : 'biên bản giao nhận';
+    echo "<div style='
+        font-family: Arial, sans-serif;
+        background-color: #d4edda;
+        color: #155724;
+        padding: 20px;
+        margin: 50px auto;
+        border: 1px solid #c3e6cb;
+        border-radius: 10px;
+        width: fit-content;
+        text-align: center;
+    '>
+        <p><strong>✅ Thành công!</strong> Đã tạo " . ($index - 1) . " $tenTaiLieu tại thư mục <code>output/{$config['folder']}/</code>.</p>
+        <div style='margin-top: 15px;'>
+            <a href='output/{$config['folder']}/' target='_blank' style='
+                display: inline-block;
+                padding: 10px 20px;
+                margin-right: 10px;
+                background-color: #28a745;
+                color: white;
+                text-decoration: none;
+                border-radius: 6px;
+                font-weight: bold;
+            '>📂 Xem tài liệu</a>
+
+            <a href='index.php' style='
+                display: inline-block;
+                padding: 10px 20px;
+                background-color: #007bff;
+                color: white;
+                text-decoration: none;
+                border-radius: 6px;
+                font-weight: bold;
+            '>⬅️ Quay về</a>
         </div>
     </div>";
     exit;
