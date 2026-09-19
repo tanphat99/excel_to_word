@@ -88,7 +88,7 @@ $companies = [
         'taikhoan' => '1121166699999 tại Ngân hàng TMCP Quân Đội - Chi nhánh Sở giao dịch 1',
     ],
     '0104315188' => [
-        'ten'      => 'CÔNG TY CỔ PHẦN SẢN XUẤT CƠ KHÍ VÀ THƯƠNG MẠI  THÁI DƯƠNG',
+        'ten'      => 'CÔNG TY CỔ PHẦN SẢN XUẤT CƠ KHÍ VÀ THƯƠNG MẠI THÁI DƯƠNG',
         'code'     => 'TD',
         'code_name'=> 'THAI_DUONG',
         'diachi'   => 'Thôn Từ Am, Xã Tam Hưng, Thành phố Hà Nội, Việt Nam',
@@ -176,7 +176,7 @@ $companies = [
         'taikhoan' => '',
     ],
     '0109691813' => [
-        'ten'      => 'CÔNG TY CỔ PHẦN SẢN XUẤT VÀ THƯƠNG MẠI  ANH QUÂN',
+        'ten'      => 'CÔNG TY CỔ PHẦN SẢN XUẤT VÀ THƯƠNG MẠI ANH QUÂN',
         'code'     => 'AQ',
         'code_name'=> 'ANH_QUAN',
         'diachi'   => 'Cụm 7 Thôn Phượng Nghĩa, Xã Phụng Châu, Huyện Chương Mỹ, Thành phố Hà Nội, Việt Nam',
