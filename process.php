@@ -45,6 +45,15 @@ $outputDir = __DIR__ . '/output/';
 if (!is_dir($outputDir)) mkdir($outputDir, 0777, true);
 
 /**
+ * Tên công ty rút về dạng đặt được cho thư mục trên Windows.
+ */
+function folderName(array $companyInfo) {
+    $name = preg_replace('/[\\\\\/:*?"<>|]+/u', ' ', $companyInfo['ten']);
+    $name = preg_replace('/\s+/u', ' ', trim($name));
+    return mb_substr($name, 0, 90);
+}
+
+/**
  * Thư mục riêng của một công ty trong lần export này: {TenCongTy}_{ngay-gio-phut}.
  * Export lại trong cùng một phút thì tách ra -2, -3... để không đè file lần trước.
  */
@@ -558,7 +567,7 @@ if ($docType === 'BBGN') {
         $sheet->setCellValue('G15',  $valueFormatted);
 
         if (!isset($companyDirs[$codeName])) {
-            $companyDirs[$codeName] = makeExportDir($exportBase, $codeName, $exportStamp);
+            $companyDirs[$codeName] = makeExportDir($exportBase, folderName($companyInfo), $exportStamp);
         }
         $companyDir = $companyDirs[$codeName];
 
@@ -708,7 +717,7 @@ if ($docType === 'BBGN_WORD' || $docType === 'DDH') {
         ]));
 
         if (!isset($companyDirs[$codeName])) {
-            $companyDirs[$codeName] = makeExportDir($exportBase, $codeName, $exportStamp);
+            $companyDirs[$codeName] = makeExportDir($exportBase, folderName($companyInfo), $exportStamp);
         }
         $companyDir = $companyDirs[$codeName];
 
@@ -1143,7 +1152,7 @@ if ($docType === 'HĐMB_HTML') {
         //👉 Lưu file vào thư mục
         $codeName = $companyInfo['code_name'];
         if (!isset($companyDirs[$codeName])) {
-            $companyDirs[$codeName] = makeExportDir($exportBase, $codeName, $exportStamp);
+            $companyDirs[$codeName] = makeExportDir($exportBase, folderName($companyInfo), $exportStamp);
         }
         $companyDir = $companyDirs[$codeName];
 
@@ -1300,7 +1309,7 @@ foreach ($data as $row) {
     //👉 Lưu file vào thư mục
     $codeName = $companyInfo['code_name'];
     if (!isset($companyDirs[$codeName])) {
-        $companyDirs[$codeName] = makeExportDir($exportBase, $codeName, $exportStamp);
+        $companyDirs[$codeName] = makeExportDir($exportBase, folderName($companyInfo), $exportStamp);
     }
     $companyDir = $companyDirs[$codeName];
 
