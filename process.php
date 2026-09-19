@@ -45,35 +45,44 @@ $outputDir = __DIR__ . '/output/';
 if (!is_dir($outputDir)) mkdir($outputDir, 0777, true);
 
 /**
- * Mỗi loại tài liệu một thư mục riêng, mỗi lần export một thư mục con theo
- * ngày giờ phút, để các lần chạy không lẫn vào nhau.
- *
- * @return string đường dẫn tương đối, vd: BienBanGiaoNhan_Word/19-09-2026_20-45/
+ * Thư mục riêng của một công ty trong lần export này: {TenCongTy}_{ngay-gio-phut}.
+ * Export lại trong cùng một phút thì tách ra -2, -3... để không đè file lần trước.
  */
-function exportPath($outputDir, $docType) {
-    $folders = [
-        'HĐMB'      => 'HopDongMuaBan',
-        'HĐMB_HTML' => 'HopDongMuaBan',
-        'BBGN'      => 'BienBanGiaoNhan_Excel',
-        'BBGN_WORD' => 'BienBanGiaoNhan_Word',
-        'DDH'       => 'DonDatHang',
-    ];
+function makeExportDir($baseDir, $codeName, $stamp) {
+    $name = $codeName . '_' . $stamp;
 
-    $base = ($folders[$docType] ?? 'Khac') . '/' . date('d-m-Y_H-i');
-
-    // Export 2 lần trong cùng một phút thì tách ra -2, -3... để không đè file
-    $path = $base;
-    for ($n = 2; is_dir($outputDir . $path); $n++) {
-        $path = $base . '-' . $n;
+    $path = $baseDir . $name;
+    for ($n = 2; is_dir($path); $n++) {
+        $path = $baseDir . $name . '-' . $n;
     }
 
+    mkdir($path, 0777, true);
     return $path . '/';
 }
 
-// 👉 Thư mục của riêng lần export này
-$exportPath = exportPath($outputDir, $docType);
-$exportDir  = $outputDir . $exportPath;
-$exportLink = 'output/' . $exportPath;
+// 👉 Mỗi loại tài liệu một thư mục, bên trong mỗi công ty một thư mục kèm thời điểm export
+$docFolders = [
+    'HĐMB'      => 'HopDongMuaBan',
+    'HĐMB_HTML' => 'HopDongMuaBan',
+    'BBGN'      => 'BienBanGiaoNhan_Excel',
+    'BBGN_WORD' => 'BienBanGiaoNhan_Word',
+    'DDH'       => 'DonDatHang',
+];
+
+$exportFolder = $docFolders[$docType] ?? 'Khac';
+$exportBase   = $outputDir . $exportFolder . '/';
+$exportLink   = 'output/' . $exportFolder . '/';
+$exportStamp  = date('d-m-Y_H-i');
+$companyDirs  = [];
+
+/**
+ * Link hiển thị sau khi export xong: chỉ có một công ty thì trỏ thẳng vào thư mục
+ * của công ty đó, nhiều công ty thì trỏ vào thư mục của loại tài liệu.
+ */
+function exportLink($exportLink, array $companyDirs) {
+    if (count($companyDirs) !== 1) return $exportLink;
+    return $exportLink . basename(reset($companyDirs)) . '/';
+}
 
 $index = 1;
 $currentYear = date('Y'); // Lấy năm hiện tại
@@ -524,8 +533,10 @@ if ($docType === 'BBGN') {
 
         $sheet->setCellValue('G15',  $valueFormatted);
 
-        $companyDir = $exportDir . $codeName . '/';
-        if (!is_dir($companyDir)) mkdir($companyDir, 0777, true);
+        if (!isset($companyDirs[$codeName])) {
+            $companyDirs[$codeName] = makeExportDir($exportBase, $codeName, $exportStamp);
+        }
+        $companyDir = $companyDirs[$codeName];
 
         $ymd = $phpDate->format('d_m_Y');
         $fileName = "BBGN_{$ymd}_{$codeName}_{$index}.xlsx";
@@ -536,6 +547,7 @@ if ($docType === 'BBGN') {
         $index++;
     }
 
+    $ketQuaLink = exportLink($exportLink, $companyDirs);
     echo "<div style='
         font-family: Arial, sans-serif;
         background-color: #d4edda;
@@ -547,9 +559,9 @@ if ($docType === 'BBGN') {
         width: fit-content;
         text-align: center;
     '>
-        <p><strong>✅ Thành công!</strong> Đã tạo file BBGN trong thư mục <code>{$exportLink}</code>.</p>
+        <p><strong>✅ Thành công!</strong> Đã tạo file BBGN trong thư mục <code>{$ketQuaLink}</code>.</p>
         <div style='margin-top: 15px;'>
-            <a href='{$exportLink}' target='_blank' style='
+            <a href='{$ketQuaLink}' target='_blank' style='
                 display: inline-block;
                 padding: 10px 20px;
                 margin-right: 10px;
@@ -671,8 +683,10 @@ if ($docType === 'BBGN_WORD' || $docType === 'DDH') {
             'TongTienBangChu'   => numberToVietnameseWords(toNumber($row['S'] ?? '')),
         ]));
 
-        $companyDir = $exportDir . $codeName . '/';
-        if (!is_dir($companyDir)) mkdir($companyDir, 0777, true);
+        if (!isset($companyDirs[$codeName])) {
+            $companyDirs[$codeName] = makeExportDir($exportBase, $codeName, $exportStamp);
+        }
+        $companyDir = $companyDirs[$codeName];
 
         $fileName = "{$config['prefix']}_{$ngayVanBan->format('d_m_Y')}_{$codeName}_{$index}.docx";
         $template->saveAs($companyDir . $fileName);
@@ -681,6 +695,7 @@ if ($docType === 'BBGN_WORD' || $docType === 'DDH') {
     }
 
     $tenTaiLieu = $isDonDatHang ? 'đơn đặt hàng' : 'biên bản giao nhận';
+    $ketQuaLink = exportLink($exportLink, $companyDirs);
     echo "<div style='
         font-family: Arial, sans-serif;
         background-color: #d4edda;
@@ -692,9 +707,9 @@ if ($docType === 'BBGN_WORD' || $docType === 'DDH') {
         width: fit-content;
         text-align: center;
     '>
-        <p><strong>✅ Thành công!</strong> Đã tạo " . ($index - 1) . " $tenTaiLieu tại thư mục <code>{$exportLink}</code>.</p>
+        <p><strong>✅ Thành công!</strong> Đã tạo " . ($index - 1) . " $tenTaiLieu tại thư mục <code>{$ketQuaLink}</code>.</p>
         <div style='margin-top: 15px;'>
-            <a href='{$exportLink}' target='_blank' style='
+            <a href='{$ketQuaLink}' target='_blank' style='
                 display: inline-block;
                 padding: 10px 20px;
                 margin-right: 10px;
@@ -1103,10 +1118,10 @@ if ($docType === 'HĐMB_HTML') {
 
         //👉 Lưu file vào thư mục
         $codeName = $companyInfo['code_name'];
-        $companyDir = $exportDir . $codeName . '/';
-        if (!is_dir($companyDir)) {
-            mkdir($companyDir, 0777, true);
+        if (!isset($companyDirs[$codeName])) {
+            $companyDirs[$codeName] = makeExportDir($exportBase, $codeName, $exportStamp);
         }
+        $companyDir = $companyDirs[$codeName];
 
         $fileName = "HĐMB_{$originalYear}_{$codeName}_{$index}_" . time() . ".docx";
         $savePath = $companyDir . $fileName;
@@ -1130,6 +1145,7 @@ if ($docType === 'HĐMB_HTML') {
         $index++;
     }
 
+    $ketQuaLink = exportLink($exportLink, $companyDirs);
     echo "<div style='
         font-family: Arial, sans-serif;
         background-color: #d4edda;
@@ -1141,9 +1157,9 @@ if ($docType === 'HĐMB_HTML') {
         width: fit-content;
         text-align: center;
     '>
-        <p><strong>✅ Thành công!</strong> Đã tạo " . ($index - 1) . " hợp đồng từ HTML template tại thư mục <code>{$exportLink}</code>.</p>
+        <p><strong>✅ Thành công!</strong> Đã tạo " . ($index - 1) . " hợp đồng từ HTML template tại thư mục <code>{$ketQuaLink}</code>.</p>
         <div style='margin-top: 15px;'>
-            <a href='{$exportLink}' target='_blank' style='
+            <a href='{$ketQuaLink}' target='_blank' style='
                 display: inline-block;
                 padding: 10px 20px;
                 margin-right: 10px;
@@ -1259,10 +1275,10 @@ foreach ($data as $row) {
 
     //👉 Lưu file vào thư mục
     $codeName = $companyInfo['code_name'];
-    $companyDir = $exportDir . $codeName . '/';
-    if (!is_dir($companyDir)) {
-        mkdir($companyDir, 0777, true);
+    if (!isset($companyDirs[$codeName])) {
+        $companyDirs[$codeName] = makeExportDir($exportBase, $codeName, $exportStamp);
     }
+    $companyDir = $companyDirs[$codeName];
 
     $fileName = "HĐMB_{$originalYear}_{$codeName}_{$index}.docx";
     $savePath = $companyDir . $fileName;
@@ -1272,6 +1288,7 @@ foreach ($data as $row) {
 }
 
 
+$ketQuaLink = exportLink($exportLink, $companyDirs);
 echo "<div style='
     font-family: Arial, sans-serif;
     background-color: #d4edda;
@@ -1283,9 +1300,9 @@ echo "<div style='
     width: fit-content;
     text-align: center;
 '>
-    <p><strong>✅ Thành công!</strong> Đã tạo " . ($index - 1) . " hợp đồng tại thư mục <code>{$exportLink}</code>.</p>
+    <p><strong>✅ Thành công!</strong> Đã tạo " . ($index - 1) . " hợp đồng tại thư mục <code>{$ketQuaLink}</code>.</p>
     <div style='margin-top: 15px;'>
-        <a href='{$exportLink}' target='_blank' style='
+        <a href='{$ketQuaLink}' target='_blank' style='
             display: inline-block;
             padding: 10px 20px;
             margin-right: 10px;
