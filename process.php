@@ -329,6 +329,17 @@ $companies = [
         'chucvu'   => 'Giám Đốc',
         'taikhoan' => '0728669766666 tại Ngân Hàng TMCP quân đội MB - Chi nhánh Thanh Trì',
     ],
+    '0111518365' => [
+        'ten'      => 'CÔNG TY TNHH SẢN XUẤT VÀ THƯƠNG MẠI ANH TRIẾT',
+        'code'     => 'AT',
+        'code_name'=> 'AT',
+        'diachi'   => 'Thôn Rùa Hạ, Xã Tam Hưng, Thành phố Hà Nội, Việt Nam',
+        'sdt'      => '098.973.3950',
+        'fax'      => '',
+        'daidien'  => 'Ông Hoàng Văn Tới',
+        'chucvu'   => 'Giám Đốc',
+        'taikhoan' => '90972325 tại Ngân Hàng TMCP quân đội MB - Chi nhánh Thụy Khuê',
+    ],
 ];
 /**
  * @param $number
