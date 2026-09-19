@@ -129,7 +129,7 @@
             <input type="date" name="hdnt_ngay" id="hdnt_ngay" title="Ngày ký hợp đồng nguyên tắc">
         </div>
 
-        <p class="hint" id="hdnt_hint">Ngày ký hợp đồng nguyên tắc — dùng cho Biên Bản Giao Nhận (Word) và Đơn Đặt Hàng.</p>
+        <p class="hint" id="hdnt_hint">Ngày ký hợp đồng nguyên tắc — dùng cho Biên Bản Giao Nhận (Word) và Đơn Đặt Hàng. Số hợp đồng lấy theo tháng/năm của ngày này (ký 10/01/2026 → 012026).</p>
 
         <button type="submit">Tạo Tài Liệu</button>
     </form>
@@ -146,6 +146,7 @@
         function toggle() {
             var canDung = docType.value === 'BBGN_WORD' || docType.value === 'DDH';
             ngayKy.disabled = !canDung;
+            ngayKy.required = canDung;
             hint.classList.toggle('muted', !canDung);
         }
 

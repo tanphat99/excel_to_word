@@ -543,10 +543,17 @@ if ($docType === 'BBGN_WORD' || $docType === 'DDH') {
         exit;
     }
 
-    // 👉 Ngày ký hợp đồng nguyên tắc do người dùng chọn ở form
+    // 👉 Ngày ký hợp đồng nguyên tắc do người dùng chọn ở form.
+    //    Số hợp đồng lấy tháng và năm của chính ngày này: ký 10/01/2026 => 012026
     $hdntDate = !empty($_POST['hdnt_ngay'])
         ? DateTime::createFromFormat('Y-m-d', $_POST['hdnt_ngay'])
         : null;
+
+    if (!$hdntDate) {
+        echo "<h2 style='color: red;'>❌ Chưa chọn ngày ký hợp đồng nguyên tắc.</h2>";
+        echo "<a href='index.php'><button>⬅ Quay lại</button></a>";
+        exit;
+    }
 
     foreach ($data as $row) {
         $maSoThue = $row['L'] ?? '';
@@ -573,9 +580,6 @@ if ($docType === 'BBGN_WORD' || $docType === 'DDH') {
         // 👉 Số đơn đặt hàng viết theo dạng ddmm/yyyy như file mẫu
         $soDonDatHang = $ngayDonDatHang->format('dm/Y');
 
-        // 👉 Số hợp đồng nguyên tắc sinh theo năm ký và tên viết tắt của bên mua
-        $namHopDong = $hdntDate ? $hdntDate->format('Y') : $ngayDonDatHang->format('Y');
-
         $template = new TemplateProcessor($config['template']);
         $template->setValues(array_map('wordValue', [
             // Bên A - bên mua, tra theo mã số thuế ở cột L
@@ -587,11 +591,11 @@ if ($docType === 'BBGN_WORD' || $docType === 'DDH') {
             'BenA_DienThoai' => $companyInfo['sdt'],
             'BenA_TaiKhoan'  => $companyInfo['taikhoan'],
 
-            // Hợp đồng nguyên tắc
-            'HDNT_So'    => '01' . $namHopDong . '/HĐNT PT- ' . str_replace('_', ' ', $codeName),
-            'HDNT_Ngay'  => $hdntDate ? $hdntDate->format('d') : '……',
-            'HDNT_Thang' => $hdntDate ? $hdntDate->format('m') : '……',
-            'HDNT_Nam'   => $hdntDate ? $hdntDate->format('Y') : '……',
+            // Hợp đồng nguyên tắc — số mang tháng/năm của ngày ký
+            'HDNT_So'    => $hdntDate->format('mY') . '/HĐNT PT- ' . str_replace('_', ' ', $codeName),
+            'HDNT_Ngay'  => $hdntDate->format('d'),
+            'HDNT_Thang' => $hdntDate->format('m'),
+            'HDNT_Nam'   => $hdntDate->format('Y'),
 
             // Ngày trên biên bản giao nhận = ngày hóa đơn
             'BBGN_Ngay'  => $ngayHoaDon->format('d'),
